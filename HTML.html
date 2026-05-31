@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Easydaily Mart</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --accent: #f0c040;
+    --text: #f0ede8;
+    --muted: #777;
+    --success: #5dbe8a;
+    --error: #e05a5a;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; padding-bottom: 80px; }
+
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 18px 20px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 12px; }
+  .header-icon { width: 38px; height: 38px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .header h1 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+  .header p { font-size: 12px; color: var(--muted); }
+
+  .tab-nav { display: flex; gap: 6px; padding: 16px 16px 0; overflow-x: auto; scrollbar-width: none; }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { flex-shrink: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 30px; padding: 8px 16px; color: var(--muted); font-size: 13px; font-family: 'Syne', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+
+  .section { display: none; padding: 16px; }
+  .section.active { display: block; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input, .field select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 15px; font-family: 'DM Sans', sans-serif; -webkit-appearance: none; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
+
+  .photo-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 20px 16px; text-align: center; transition: all 0.2s; }
+  .photo-area.has-files { border-color: var(--success); border-style: solid; }
+  .photo-area-icon { font-size: 28px; margin-bottom: 6px; }
+  .photo-area-text { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .photo-btns { display: flex; gap: 8px; justify-content: center; }
+  .photo-btn { flex: 1; max-width: 150px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .photo-btn:hover { border-color: var(--accent); color: var(--accent); }
+  input[type="file"] { display: none; }
+
+  .preview-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .preview-wrap { position: relative; display: inline-block; }
+  .preview-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 2px solid var(--border); }
+  .preview-remove { position: absolute; top: -6px; right: -6px; background: var(--error); border: none; border-radius: 50%; width: 20px; height: 20px; color: #fff; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  .expense-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .expense-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .expense-thumb { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+  .expense-label { font-size: 13px; color: var(--success); }
+  .expense-remove { margin-left: auto; background: none; border: none; color: var(--error); font-size: 22px; cursor: pointer; }
+
+  .staff-entry { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .staff-entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .staff-entry-title { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .remove-staff { background: none; border: none; color: var(--error); font-size: 20px; cursor: pointer; }
+  .add-staff-btn { width: 100%; background: transparent; border: 1px dashed var(--border); border-radius: 10px; padding: 12px; color: var(--muted); font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+  .add-staff-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .submit-btn { width: 100%; background: var(--accent); color: #000; border: none; border-radius: var(--radius); padding: 16px; font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-appearance: none; touch-action: manipulation; position: relative; z-index: 10; }
+  .submit-btn:hover { background: #ffd44d; }
+  .submit-btn:active { background: #ffd44d; transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); border-radius: 30px; padding: 12px 20px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; max-width: 90vw; text-align: center; }
+  .toast.show { opacity: 1; }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--error); color: var(--error); }
+
+  .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 200; flex-direction: column; gap: 16px; }
+  .loading-overlay.show { display: flex; }
+  .loading-overlay p { font-size: 14px; color: var(--text); }
+  .big-spinner { width: 48px; height: 48px; border: 4px solid rgba(240,192,64,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🏪</div>
+  <div>
+    <h1>Easydaily Mart</h1>
+    <p>Daily Sales Recorder</p>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('closing', this)">📊 Closing Sale</button>
+  <button class="tab-btn" onclick="switchTab('expense', this)">🧾 Payment</button>
+  <button class="tab-btn" onclick="switchTab('salary', this)">👤 Staff Salary</button>
+  <button class="tab-btn" onclick="switchTab('masuk', this)">💵 Masuk</button>
+</div>
+
+<!-- CLOSING SALE -->
+<div class="section active" id="sec-closing">
+  <div class="card">
+    <div class="card-title">📊 Closing Sale — Shift Report</div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="closing-date">
+    </div>
+    <div class="field">
+      <label>Gross Sales Amount (RM)</label>
+      <input type="number" id="closing-amount" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="field">
+      <label>Shift Report Photo</label>
+      <div class="photo-area" id="closing-area">
+        <div class="photo-area-icon">📄</div>
+        <div class="photo-area-text">Upload or take photo of shift report</div>
+        <div class="photo-btns">
+          <button class="photo-btn" onclick="document.getElementById('closing-cam').click()">📷 Camera</button>
+          <button class="photo-btn" onclick="document.getElementById('closing-file').click()">🖼️ Gallery</button>
+        </div>
+        <input type="file" id="closing-cam" accept="image/*" capture="environment" onchange="handleClosingPhoto(this)">
+        <input type="file" id="closing-file" accept="image/*" onchange="handleClosingPhoto(this)">
+      </div>
+      <div id="closing-preview" class="preview-grid"></div>
+    </div>
+    <button class="submit-btn" onclick="submitClosing()">✅ Submit Closing Sale</button>
+  </div>
+</div>
+
+<!-- PAYMENT -->
+<div class="section" id="sec-expense">
+  <div class="card">
+    <div class="card-title">🧾 Payment / Expense</div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="expense-date">
+    </div>
+    <div class="field">
+      <label>Add Receipt Photos</label>
+      <div class="photo-area">
+        <div class="photo-area-icon">🧾</div>
+        <div class="photo-area-text">Each photo = one expense entry</div>
+        <div class="photo-btns">
+          <button class="photo-btn" onclick="document.getElementById('expense-cam').click()">📷 Camera</button>
+          <button class="photo-btn" onclick="document.getElementById('expense-file').click()">🖼️ Gallery</button>
+        </div>
+        <input type="file" id="expense-cam" accept="image/*" capture="environment" onchange="addExpensePhoto(this)">
+        <input type="file" id="expense-file" accept="image/*" multiple onchange="addExpensePhoto(this)">
+      </div>
+    </div>
+    <div id="expense-list"></div>
+    <button class="submit-btn" id="expense-submit-btn" style="display:none" onclick="submitExpenses()">✅ Submit All Payments</button>
+  </div>
+</div>
+
+<!-- STAFF SALARY -->
+<div class="section" id="sec-salary">
+  <div class="card">
+    <div class="card-title">👤 Staff Salary</div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="salary-date">
+    </div>
+    <div id="staff-list"></div>
+    <button class="add-staff-btn" onclick="addStaff()">➕ Add Another Staff</button>
+    <button class="submit-btn" onclick="submitSalary()">✅ Submit Salary</button>
+  </div>
+</div>
+
+<!-- MASUK -->
+<div class="section" id="sec-masuk">
+  <div class="card">
+    <div class="card-title">💵 Masuk</div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="masuk-date">
+    </div>
+    <div class="field">
+      <label>Amount (RM)</label>
+      <input type="number" id="masuk-amount" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="masuk-note" placeholder="e.g. bank transfer...">
+    </div>
+    <button class="submit-btn" onclick="submitMasuk()">✅ Submit Masuk</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loading">
+  <div class="big-spinner"></div>
+  <p id="loading-text">Saving...</p>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxIRiB2hk8rsBxO5bo6jP2HT9USkGWbEQY6p5n7DXt7PWWONcckPGnZKa0Lhay0SjxU/exec';
+const STAFF = ['Thars', 'Alvin', 'Other'];
+
+// ── UTILS ──────────────────────────────────────────────
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function formatForFileName(dateStr) {
+  const d = new Date(dateStr);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${String(d.getDate()).padStart(2,'0')}${months[d.getMonth()]}${d.getFullYear()}`;
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function showLoading(msg='Saving...') {
+  document.getElementById('loading-text').textContent = msg;
+  document.getElementById('loading').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loading').classList.remove('show');
+}
+
+function compressImage(file) {
+  return new Promise((res) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const max = 1000;
+      let w = img.width, h = img.height;
+      if (w > max || h > max) {
+        if (w > h) { h = Math.round(h * max / w); w = max; }
+        else { w = Math.round(w * max / h); h = max; }
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      res(canvas.toDataURL('image/jpeg', 0.75).split(',')[1]);
+    };
+    img.src = url;
+  });
+}
+
+function fileToDataURL(file) {
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.readAsDataURL(file);
+  });
+}
+
+// ── TABS ──────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── INIT DATES ────────────────────────────────────────
+function initDates() {
+  ['closing-date','expense-date','salary-date','masuk-date'].forEach(id => {
+    document.getElementById(id).value = today();
+  });
+}
+
+// ── CLOSING SALE ──────────────────────────────────────
+let closingFile = null;
+
+async function handleClosingPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  closingFile = file;
+  const dataURL = await fileToDataURL(file);
+  document.getElementById('closing-preview').innerHTML =
+    `<div class="preview-wrap"><img class="preview-thumb" src="${dataURL}"><button class="preview-remove" onclick="removeClosingPhoto()">×</button></div>`;
+  document.getElementById('closing-area').classList.add('has-files');
+  input.value = '';
+}
+
+function removeClosingPhoto() {
+  closingFile = null;
+  document.getElementById('closing-preview').innerHTML = '';
+  document.getElementById('closing-area').classList.remove('has-files');
+}
+
+async function submitClosing() {
+  const amount = parseFloat(document.getElementById('closing-amount').value);
+  const date = document.getElementById('closing-date').value;
+  if (!amount) { showToast('Please enter gross sales amount', 'error'); return; }
+  if (!date) { showToast('Please select a date', 'error'); return; }
+
+  showLoading('Saving closing sale...');
+  try {
+    // ONLY send date and amount - NO photo in URL
+    const url = SCRIPT_URL + '?action=closing&date=' + encodeURIComponent(date) + '&grossSales=' + amount;
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
+    hideLoading();
+    showToast('✅ Closing sale saved!', 'success');
+    document.getElementById('closing-amount').value = '';
+
+    // Upload photo separately in background after success
+    const savedFile = closingFile;
+    const savedDate = date;
+    removeClosingPhoto();
+    document.getElementById('closing-date').value = today();
+
+    if (savedFile) {
+      compressImage(savedFile).then(function(base64) {
+        var photoName = formatForFileName(savedDate) + '_closing.jpg';
+        var fd = new FormData();
+        fd.append('action', 'savePhoto');
+        fd.append('photo', base64);
+        fd.append('photoName', photoName);
+        fd.append('folder', 'grow');
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd }).catch(function(){});
+      }).catch(function(){});
+    }
+  } catch(e) {
+    hideLoading();
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+// ── EXPENSE ───────────────────────────────────────────
+let expenseItems = [];
+
+async function addExpensePhoto(input) {
+  const files = Array.from(input.files);
+  for (const file of files) {
+    const dataURL = await fileToDataURL(file);
+    expenseItems.push({ file, dataURL, supplier: '', amount: '' });
+  }
+  renderExpenseList();
+  input.value = '';
+}
+
+function renderExpenseList() {
+  const list = document.getElementById('expense-list');
+  if (!expenseItems.length) { list.innerHTML = ''; document.getElementById('expense-submit-btn').style.display='none'; return; }
+  list.innerHTML = expenseItems.map((item, i) => `
+    <div class="expense-item">
+      <div class="expense-item-header">
+        <img class="expense-thumb" src="${item.dataURL}">
+        <span class="expense-label">Receipt ${i+1}</span>
+        <button class="expense-remove" onclick="removeExpense(${i})">×</button>
+      </div>
+      <div class="field">
+        <label>Supplier Name</label>
+        <input type="text" placeholder="e.g. Gardenia" value="${item.supplier}"
+          oninput="expenseItems[${i}].supplier=this.value">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Amount (RM)</label>
+        <input type="number" placeholder="0.00" step="0.01" value="${item.amount}"
+          oninput="expenseItems[${i}].amount=this.value">
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('expense-submit-btn').style.display = 'flex';
+}
+
+function removeExpense(i) {
+  expenseItems.splice(i, 1);
+  renderExpenseList();
+}
+
+async function submitExpenses() {
+  const date = document.getElementById('expense-date').value;
+  if (!expenseItems.length) { showToast('Please add at least one receipt', 'error'); return; }
+  if (expenseItems.some(i => !i.supplier || !i.amount)) {
+    showToast('Please fill all supplier names and amounts', 'error'); return;
+  }
+
+  showLoading('Saving payments...');
+  try {
+    for (const item of expenseItems) {
+      // Step 1: Save to sheet via GET (no photo)
+      const expenseUrl = SCRIPT_URL + '?action=expense&date=' + encodeURIComponent(date) + '&supplier=' + encodeURIComponent(item.supplier) + '&amount=' + item.amount;
+      await fetch(expenseUrl, { method: 'GET', mode: 'no-cors' });
+
+      // Step 2: Upload photo in background
+      const photoFile = item.file;
+      compressImage(photoFile).then(base64 => {
+        const photoName = formatForFileName(date) + '_' + item.supplier.replace(/[^a-zA-Z0-9]/g,'') + '.jpg';
+        const photoFd = new FormData();
+        photoFd.append('action', 'savePhoto');
+        photoFd.append('photo', base64);
+        photoFd.append('photoName', photoName);
+        photoFd.append('folder', 'receipt');
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: photoFd });
+      });
+    }
+    hideLoading();
+    showToast(`✅ ${expenseItems.length} payment(s) saved!`, 'success');
+    expenseItems = [];
+    renderExpenseList();
+    document.getElementById('expense-date').value = today();
+  } catch(e) {
+    hideLoading();
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+// ── STAFF SALARY ──────────────────────────────────────
+let staffEntries = [];
+
+function addStaff() {
+  staffEntries.push({ name: '', amount: '' });
+  renderStaffList();
+}
+
+function renderStaffList() {
+  document.getElementById('staff-list').innerHTML = staffEntries.map((e, i) => `
+    <div class="staff-entry">
+      <div class="staff-entry-header">
+        <span class="staff-entry-title">Staff ${i+1}</span>
+        ${staffEntries.length > 1 ? `<button class="remove-staff" onclick="removeStaff(${i})">×</button>` : ''}
+      </div>
+      <div class="field">
+        <label>Name</label>
+        <select onchange="staffEntries[${i}].name=this.value">
+          <option value="">Select...</option>
+          ${STAFF.map(s => `<option value="${s}" ${e.name===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Amount (RM)</label>
+        <input type="number" placeholder="0.00" step="0.01" value="${e.amount}"
+          oninput="staffEntries[${i}].amount=this.value">
+      </div>
+    </div>
+  `).join('');
+}
+
+function removeStaff(i) {
+  staffEntries.splice(i, 1);
+  renderStaffList();
+}
+
+async function submitSalary() {
+  const date = document.getElementById('salary-date').value;
+  if (!staffEntries.length) { showToast('Add at least one staff entry', 'error'); return; }
+  if (staffEntries.some(e => !e.name || !e.amount)) {
+    showToast('Please fill all staff names and amounts', 'error'); return;
+  }
+  showLoading('Saving salary...');
+  try {
+    const url = `${SCRIPT_URL}?action=salary&date=${encodeURIComponent(date)}&entries=${encodeURIComponent(JSON.stringify(staffEntries))}`;
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
+    hideLoading();
+    showToast('✅ Salary saved!', 'success');
+    staffEntries = [{ name: '', amount: '' }];
+    renderStaffList();
+    document.getElementById('salary-date').value = today();
+  } catch(e) {
+    hideLoading();
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+// ── MASUK ─────────────────────────────────────────────
+async function submitMasuk() {
+  const date = document.getElementById('masuk-date').value;
+  const amount = parseFloat(document.getElementById('masuk-amount').value);
+  const note = document.getElementById('masuk-note').value;
+  if (!amount) { showToast('Please enter an amount', 'error'); return; }
+  showLoading('Saving masuk...');
+  try {
+    const url = `${SCRIPT_URL}?action=masuk&date=${encodeURIComponent(date)}&amount=${amount}&note=${encodeURIComponent(note)}`;
+    await fetch(url, { method: 'GET', mode: 'no-cors' });
+    hideLoading();
+    showToast('✅ Masuk saved!', 'success');
+    document.getElementById('masuk-amount').value = '';
+    document.getElementById('masuk-note').value = '';
+    document.getElementById('masuk-date').value = today();
+  } catch(e) {
+    hideLoading();
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+// ── START ─────────────────────────────────────────────
+initDates();
+addStaff();
+</script>
+</body>
+</html>
